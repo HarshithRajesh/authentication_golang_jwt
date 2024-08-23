@@ -116,3 +116,35 @@ func Login(c *fiber.Ctx) error{
 	})
 
 }
+
+func User(c *fiber.Ctx) error{
+
+	fmt.Println("Request to get user....")
+
+	cookie := c.Cookies("jwt")
+
+	token,err := jwt.ParseWithClaims(cookie, &jwt.MapClaims{},func(token *jwt.Token)(interface{},error){
+		return []byte(secretKey),nil
+	})
+	if err != nil{
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":"Unauthorized",
+		})
+	}
+
+	claims, ok := token.Claims.(*jwt.MapClaims)
+	if !ok{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":"Failed to parse the claims",
+		})
+	}
+
+	id,_ := strconv.Atoi((*claims)["sub"].(string))
+	user := models.User{ID: uint(id)}
+
+	database.DB.Where("id = ?",id).First(&user)
+
+	return c.JSON(user)
+
+	
+}

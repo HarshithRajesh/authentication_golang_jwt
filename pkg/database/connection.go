@@ -12,7 +12,7 @@ import (
 var DB *gorm.DB
 
 func ConnectionDB() (*gorm.DB,error){
-	err := godotenv.Load(".env")
+	err := godotenv.Load("/home/neo/code/projects/hackathon1/.env")
 	 if err !=nil{
 		log.Fatal("error loading .env files")
 	 }
